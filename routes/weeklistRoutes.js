@@ -343,7 +343,7 @@ listRouter.get('/all', async (req, res) => {
 listRouter.get('/feed', async (req, res) => {
     try {
         //logic
-        const WeekList = await mongoose.model('WeekList').find({ status: 'active' }).exec();
+        const WeekList = await mongoose.model('WeekList').find({ status: 'active',isCompleted:false }).exec();
         
         res.status(200).json({
             list: WeekList,
