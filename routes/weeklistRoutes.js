@@ -79,7 +79,33 @@ const check7Days = async (req, res, next) => {
 
 }
 
+const inactiveOn7Days = async (req, res, next) => {
+    try {
+        const email = await req.email
+        const activeWeekList = await mongoose.model('WeekList').find({ email: email, status: 'active', }).exec();
+        activeWeekList.forEach(async item=>{
+            const days = getTimeDifference(item['createdAt']) / (1000 * 60 * 60 * 24)
+            console.log(days)
+            if(days>7){
+                await mongoose.model('WeekList').updateOne(
+                    { _id: item['_id'] },
+                    { $set: { status: 'inactive' } }
+                );
+            }
+        })
+        next()
+        
+    }
+    catch (err) {
+        res.status(500).json({
+            message: err
+        })
+    }
+
+}
+
 listRouter.use(isLoggedIn)
+listRouter.use(inactiveOn7Days)
 
 //Add week list
 listRouter.post('/add', async (req, res) => {
